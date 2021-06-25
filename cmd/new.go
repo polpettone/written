@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
 )
 
 func NewCmd() *cobra.Command {
@@ -29,11 +28,9 @@ func handleNewCommand(args []string) (string, error) {
 
 	name := args[0]
 
-	if err != nil {
-		return "", err
-	}
+	writtenDirectory := viper.GetString(WrittenDirectory)
 
-	return fmt.Sprintf("written %s created", name), nil
+	return fmt.Sprintf("written %s created %s", name, writtenDirectory), nil
 }
 
 func init() {

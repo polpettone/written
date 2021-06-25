@@ -1,3 +1,3 @@
 package cmd
 
-const FooboosFile = "path_to_fooboos"
+const WrittenDirectory = "path_to_written_directory"
