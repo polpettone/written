@@ -13,7 +13,7 @@ func NewCmd() *cobra.Command {
 		Use:   "new <name>",
 		Short: "create a new written",
 		Run: func(cmd *cobra.Command, args []string) {
-			stdout, err := handleNewCommand(args)
+			stdout, err := handleNewCommand(args, cmd)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -22,7 +22,17 @@ func NewCmd() *cobra.Command {
 	}
 }
 
-func handleNewCommand(args []string) (string, error) {
+func findPattern(pattern string) {
+	fmt.Printf("Find pattern for name %s", pattern)
+}
+
+
+func handleNewCommand(args []string, cobraCommand *cobra.Command) (string, error) {
+
+	patternName, _  := cobraCommand.Flags().GetString("pattern")
+    if patternName != "" {
+	    findPattern(patternName)
+    }
 
 	if len(args) != 1 {
 		return fmt.Sprintf("Please provide a name of the new written"), nil
@@ -48,5 +58,13 @@ func handleNewCommand(args []string) (string, error) {
 
 func init() {
 	newCmd := NewCmd()
+
+	newCmd.Flags().StringP(
+		"pattern",
+		"p",
+		"",
+		"pattern <name> to choose a pattern",
+	)
+
 	rootCmd.AddCommand(newCmd)
 }
