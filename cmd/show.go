@@ -91,8 +91,6 @@ func mainView() {
 	grid.AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
 		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false)
 
-	focusablePrimitives := [3]tview.Primitive{documentTable, documentContentView, documentMetaInfoView}
-
 	if err := app.
 		SetRoot(grid, true).
 		SetFocus(documentTable).
@@ -100,23 +98,6 @@ func mainView() {
 			func(event *tcell.EventKey) *tcell.EventKey {
 				if event.Key() == tcell.KeyCtrlC {
 					app.Stop()
-				}
-
-				if event.Key() == tcell.KeyTAB {
-					config.Log.InfoLog.Printf("Change Focus")
-					for c, f := range focusablePrimitives {
-						if f.HasFocus() {
-							var next int
-							if c < len(focusablePrimitives)-1 {
-								next = c + 1
-							} else {
-								next = 0
-							}
-							app.SetFocus(focusablePrimitives[next])
-							config.Log.InfoLog.Printf("%v has focus", focusablePrimitives[count])
-							break
-						}
-					}
 				}
 
 				return event
