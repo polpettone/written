@@ -74,11 +74,14 @@ func mainView() {
 		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().String()))
 	}
 
+	tagInputField := tview.NewInputField().SetLabel("Tag").SetFieldBackgroundColor(tcell.Color240)
+
 	documentGrid := tview.NewGrid().
-		SetRows(10, 0).
+		SetRows(10, 0, 2).
 		SetBorders(true).
 		AddItem(documentContentView, 1, 0, 1, 2, 0, 0, false).
-		AddItem(documentMetaInfoView, 0, 0, 1, 2, 10, 0, false)
+		AddItem(documentMetaInfoView, 0, 0, 1, 2, 10, 0, false).
+		AddItem(tagInputField, 2, 0, 1, 2, 10, 0, false)
 
 	grid := tview.NewGrid().
 		SetRows(2, 0, 2).
@@ -98,9 +101,18 @@ func mainView() {
 		SetFocus(documentTable).
 		SetInputCapture(
 			func(event *tcell.EventKey) *tcell.EventKey {
+
 				if event.Key() == tcell.KeyCtrlC {
 					app.Stop()
 				}
+
+				if event.Key() == tcell.KeyCtrlD {
+					app.SetFocus(documentTable)
+				}
+				if event.Key() == tcell.KeyCtrlT {
+					app.SetFocus(tagInputField)
+				}
+
 				return event
 			}).
 		Run(); err != nil {
