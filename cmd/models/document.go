@@ -1,9 +1,12 @@
 package models
 
+import "os"
+
 type Document struct {
-	Name string
+	Path string
+	Info os.FileInfo
 }
 
 func (document Document) String() string {
-	return document.Name
+	return document.Info.Name()
 }

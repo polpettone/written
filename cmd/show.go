@@ -27,7 +27,7 @@ func ShowCmd() *cobra.Command {
 }
 
 func handleShowCommand() (string, error) {
-	simpleGrid()
+	mainView()
 	return "", nil
 }
 
@@ -45,64 +45,63 @@ func init() {
 	rootCmd.AddCommand(showCmd)
 }
 
-func simpleGrid() {
-
-	config.Log.InfoLog.Printf("Simple Grid")
-	WrittenDirectory := viper.GetString(WrittenDirectory)
+func mainView() {
 	app := tview.NewApplication()
 
 	documents, _ := readDocuments()
 
-	newPrimitive := func(text string) tview.Primitive {
-		return tview.NewTextView().
-			SetTextAlign(tview.AlignCenter).
-			SetText(text)
-	}
-
 	documentContentView := tview.NewTextView()
+	documentMetaInfoView := tview.NewTextView()
 
-	documentList := tview.NewList()
-	for _, document := range documents {
-		documentList.AddItem(document.Name, "", ' ', nil)
-	}
-
-	documentList.SetChangedFunc(
-		func(index int, mainText string, secondaryText string, shortcut rune) {
-			document := documents[index]
-			bytes, err := ioutil.ReadFile(WrittenDirectory + "/" + document.Name)
+	documentTable := tview.NewTable().SetBorders(true).SetSelectable(true, false).SetSelectedFunc(
+		func(row int, column int) {
+			document := documents[row]
+			bytes, err := ioutil.ReadFile(document.Path)
 			if err != nil {
 				config.Log.ErrorLog.Printf("{}", err)
 			}
 			documentContentView.SetText(string(bytes))
-		})
+			documentMetaInfoView.SetText(fmt.Sprintf("%s \n %s", document.Path, document.Info.Name()))
+		},
+	)
+
+	count := 0
+	for _, document := range documents {
+		documentTable.SetCell(count, 0, tview.NewTableCell(document.Info.Name()))
+		documentTable.SetCell(count, 1, tview.NewTableCell(document.Info.ModTime().String()))
+		count++
+	}
+
+	documentGrid := tview.NewGrid().
+		SetRows(10, 0).
+		SetBorders(true).
+		AddItem(documentContentView, 1, 0, 1, 2, 0, 0, false).
+		AddItem(documentMetaInfoView, 0, 0, 1, 2, 10, 0, false)
 
 	grid := tview.NewGrid().
 		SetRows(2, 0, 2).
-		SetColumns(30, 0).
-		SetBorders(true).
-		AddItem(newPrimitive("Header"), 0, 0, 1, 2, 0, 0, false).
-		AddItem(newPrimitive("Footer"), 2, 0, 1, 2, 0, 0, false)
+		SetColumns(100, 0).
+		SetBorders(true)
 
 	// Layout for screens narrower than 100 cells (menu and side bar are hidden).
-	grid.AddItem(documentList, 0, 0, 0, 0, 0, 0, false).
-		AddItem(documentContentView, 1, 0, 1, 2, 0, 0, false)
+	grid.AddItem(documentTable, 0, 0, 0, 0, 0, 0, false).
+		AddItem(documentGrid, 1, 0, 1, 2, 0, 0, false)
 
 	// Layout for screens wider than 100 cells.
-	grid.AddItem(documentList, 1, 0, 1, 1, 0, 100, false).
-		AddItem(documentContentView, 1, 1, 1, 1, 0, 100, false)
+	grid.AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
+		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false)
 
 	if err := app.
-				SetRoot(grid, true).
-				SetFocus(documentList).
-				SetInputCapture(
-					func(event *tcell.EventKey) *tcell.EventKey {
-						if event.Key() == tcell.KeyCtrlC {
-							app.Stop()
-						}
-						return event
-					}).
-				Run(); err != nil {
+		SetRoot(grid, true).
+		SetFocus(documentTable).
+		SetInputCapture(
+			func(event *tcell.EventKey) *tcell.EventKey {
+				if event.Key() == tcell.KeyCtrlC {
+					app.Stop()
+				}
+				return event
+			}).
+		Run(); err != nil {
 		panic(err)
 	}
 }
-

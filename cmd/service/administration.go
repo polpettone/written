@@ -20,7 +20,8 @@ func Read(path string) ([]models.Document, error) {
 			}
 
 			document := models.Document{
-				Name: info.Name(),
+				Path: path,
+				Info: info,
 			}
 			documents = append(documents, document)
 			return nil
