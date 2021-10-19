@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/cmd/service"
 	"github.com/rivo/tview"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
 )
 
 func ShowCmd() *cobra.Command {
@@ -42,28 +44,40 @@ func init() {
 	rootCmd.AddCommand(showCmd)
 }
 
+var currentDocumentContent string
+
 func simpleGrid() {
 
+	config.Log.InfoLog.Printf("Simple Grid")
+	WrittenDirectory := viper.GetString(WrittenDirectory)
 	app := tview.NewApplication()
 
-	list := tview.NewList().
-		AddItem("Quit", "Press to exit", 'q', func() {
-			app.Stop()
-		})
+	documentList := tview.NewList()
 
 	documents, _ := readDocuments()
 
-	for _, document := range documents {
-		list.AddItem(document.Name, "", ' ' , nil)
-	}
 	newPrimitive := func(text string) tview.Primitive {
 		return tview.NewTextView().
 			SetTextAlign(tview.AlignCenter).
 			SetText(text)
 	}
-	documentList := list
 
-	main := newPrimitive("Document Preview")
+	textView := tview.NewTextView()
+
+	for _, document := range documents {
+		documentList.AddItem(document.Name, "", ' ', nil)
+	}
+
+	documentList.SetChangedFunc(
+		func(index int, mainText string, secondaryText string, shortcut rune) {
+			document := documents[index]
+			bytes, err := ioutil.ReadFile(WrittenDirectory + "/" + document.Name)
+			if err != nil {
+				config.Log.ErrorLog.Printf("{}", err)
+			}
+			currentDocumentContent = string(bytes)
+			textView.SetText(currentDocumentContent)
+		})
 
 	grid := tview.NewGrid().
 		SetRows(2, 0, 2).
@@ -74,11 +88,11 @@ func simpleGrid() {
 
 	// Layout for screens narrower than 100 cells (menu and side bar are hidden).
 	grid.AddItem(documentList, 0, 0, 0, 0, 0, 0, false).
-		AddItem(main, 1, 0, 1, 2, 0, 0, false)
+		AddItem(textView, 1, 0, 1, 2, 0, 0, false)
 
 	// Layout for screens wider than 100 cells.
 	grid.AddItem(documentList, 1, 0, 1, 1, 0, 100, false).
-		AddItem(main, 1, 1, 1, 1, 0, 100, false)
+		AddItem(textView, 1, 1, 1, 1, 0, 100, false)
 
 	if err := app.SetRoot(grid, true).SetFocus(documentList).Run(); err != nil {
 		panic(err)
