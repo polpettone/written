@@ -53,23 +53,25 @@ func mainView() {
 	documentContentView := tview.NewTextView()
 	documentMetaInfoView := tview.NewTextView()
 
-	documentTable := tview.NewTable().SetBorders(true).SetSelectable(true, false).SetSelectedFunc(
-		func(row int, column int) {
-			document := documents[row]
-			bytes, err := ioutil.ReadFile(document.Path)
-			if err != nil {
-				config.Log.ErrorLog.Printf("{}", err)
-			}
-			documentContentView.SetText(string(bytes))
-			documentMetaInfoView.SetText(fmt.Sprintf("%s \n %s", document.Path, document.Info.Name()))
-		},
-	)
+	documentTable := tview.
+		NewTable().
+		SetBorders(true).
+		SetSelectable(true, false).
+		SetSelectedFunc(
+			func(row int, column int) {
+				document := documents[row]
+				bytes, err := ioutil.ReadFile(document.Path)
+				if err != nil {
+					config.Log.ErrorLog.Printf("{}", err)
+				}
+				documentContentView.SetText(string(bytes))
+				documentMetaInfoView.SetText(fmt.Sprintf("%s \n %s", document.Path, document.Info.Name()))
+			},
+		)
 
-	count := 0
-	for _, document := range documents {
-		documentTable.SetCell(count, 0, tview.NewTableCell(document.Info.Name()))
-		documentTable.SetCell(count, 1, tview.NewTableCell(document.Info.ModTime().String()))
-		count++
+	for row, document := range documents {
+		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
+		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().String()))
 	}
 
 	documentGrid := tview.NewGrid().
@@ -99,7 +101,6 @@ func mainView() {
 				if event.Key() == tcell.KeyCtrlC {
 					app.Stop()
 				}
-
 				return event
 			}).
 		Run(); err != nil {
