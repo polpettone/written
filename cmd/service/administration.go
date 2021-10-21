@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
 	"os"
 	"path/filepath"
@@ -22,6 +23,7 @@ func Read(path string) ([]models.Document, error) {
 			document := models.Document{
 				Path: path,
 				Info: info,
+				Tags: []string{"dummy0", "dummy1"},
 			}
 			documents = append(documents, document)
 			return nil
@@ -30,4 +32,8 @@ func Read(path string) ([]models.Document, error) {
 		return nil, err
 	}
 	return documents, nil
+}
+
+func Save() {
+	config.Log.InfoLog.Printf("Save")
 }

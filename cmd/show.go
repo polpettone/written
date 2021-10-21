@@ -72,9 +72,19 @@ func mainView() {
 	for row, document := range documents {
 		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
 		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().String()))
+		documentTable.SetCell(row, 2, tview.NewTableCell(fmt.Sprintf("%s", document.Tags)))
 	}
 
-	tagInputField := tview.NewInputField().SetLabel("Tag").SetFieldBackgroundColor(tcell.Color240)
+	tagInputField := tview.NewInputField().
+		SetLabel("Tag").
+		SetFieldBackgroundColor(tcell.Color240).
+		SetDoneFunc(func(key tcell.Key) {
+
+			if key == tcell.KeyEnter {
+
+			}
+
+	})
 
 	documentGrid := tview.NewGrid().
 		SetRows(10, 0, 2).
@@ -103,6 +113,7 @@ func mainView() {
 			func(event *tcell.EventKey) *tcell.EventKey {
 
 				if event.Key() == tcell.KeyCtrlC {
+					service.Save()
 					app.Stop()
 				}
 
