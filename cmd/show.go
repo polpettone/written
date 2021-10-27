@@ -66,7 +66,7 @@ func buildDocumentTable(documents []*models.Document,
 		NewTable().
 		SetBorders(true).
 		SetSelectable(true, false).
-		SetSelectedFunc(
+		SetSelectionChangedFunc(
 			func(row int, column int) {
 				document := documents[row]
 				bytes, err := ioutil.ReadFile(document.Path)
