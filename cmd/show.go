@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
+	"github.com/skratchdot/open-golang/open"
 	"strings"
 	"time"
 )
@@ -145,6 +146,16 @@ func mainView() {
 				}
 				if event.Key() == tcell.KeyCtrlT {
 					app.SetFocus(tagInputField)
+				}
+
+				if event.Key() == tcell.KeyCtrlO {
+					selectedRow, _ := documentTable.GetSelection()
+					document := documents[selectedRow]
+					config.Log.InfoLog.Printf("%s", document.Path)
+					err := open.RunWith(document.Path, "vim")
+					if err != nil {
+						config.Log.ErrorLog.Printf("%v", err)
+					}
 				}
 
 				return event
