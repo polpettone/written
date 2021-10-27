@@ -55,14 +55,9 @@ func fillDocumentTable(documents []*models.Document, documentTable tview.Table) 
 
 }
 
-func mainView() {
-	app := tview.NewApplication()
-
-	documents, _ := readDocuments()
-
-	documentContentView := tview.NewTextView()
-	documentMetaInfoView := tview.NewTextView()
-
+func buildDocumentTable(documents []*models.Document,
+						documentContentView *tview.TextView,
+						documentMetaInfoView *tview.TextView) *tview.Table {
 	documentTable := tview.
 		NewTable().
 		SetBorders(true).
@@ -78,11 +73,21 @@ func mainView() {
 				documentMetaInfoView.SetText(fmt.Sprintf("%s \n %s", document.Path, document.Info.Name()))
 			},
 		)
+	return documentTable
+}
+
+func mainView() {
+	app := tview.NewApplication()
+
+	documentContentView := tview.NewTextView()
+	documentMetaInfoView := tview.NewTextView()
+	documents, _ := readDocuments()
+	documentTable := buildDocumentTable(documents, documentContentView, documentMetaInfoView)
 
 	fillDocumentTable(documents, *documentTable)
 
 	tagInputField := tview.NewInputField().
-		SetLabel("Tag").
+		SetLabel("Tags: ").
 		SetFieldBackgroundColor(tcell.Color240)
 
 	tagInputField.SetDoneFunc(func(key tcell.Key) {
