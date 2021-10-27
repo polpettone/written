@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
+	"strings"
 	"time"
 )
 
@@ -26,6 +27,8 @@ func ShowCmd() *cobra.Command {
 		},
 	}
 }
+
+const SPACE = " "
 
 func handleShowCommand() (string, error) {
 	mainView()
@@ -50,14 +53,15 @@ func fillDocumentTable(documents []*models.Document, documentTable tview.Table) 
 	for row, document := range documents {
 		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
 		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().Format(time.RFC822)))
-		documentTable.SetCell(row, 2, tview.NewTableCell(fmt.Sprintf("%s", document.Tags)))
+		documentTable.SetCell(row, 2, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
 	}
 
 }
 
 func buildDocumentTable(documents []*models.Document,
 						documentContentView *tview.TextView,
-						documentMetaInfoView *tview.TextView) *tview.Table {
+						documentMetaInfoView *tview.TextView,
+						tagInputField *tview.InputField) *tview.Table {
 	documentTable := tview.
 		NewTable().
 		SetBorders(true).
@@ -71,6 +75,7 @@ func buildDocumentTable(documents []*models.Document,
 				}
 				documentContentView.SetText(string(bytes))
 				documentMetaInfoView.SetText(fmt.Sprintf("%s \n %s", document.Path, document.Info.Name()))
+				tagInputField.SetText(fmt.Sprintf("%s", strings.Join(document.Tags, SPACE)))
 			},
 		)
 	return documentTable
@@ -79,16 +84,17 @@ func buildDocumentTable(documents []*models.Document,
 func mainView() {
 	app := tview.NewApplication()
 
-	documentContentView := tview.NewTextView()
-	documentMetaInfoView := tview.NewTextView()
-	documents, _ := readDocuments()
-	documentTable := buildDocumentTable(documents, documentContentView, documentMetaInfoView)
-
-	fillDocumentTable(documents, *documentTable)
-
 	tagInputField := tview.NewInputField().
 		SetLabel("Tags: ").
 		SetFieldBackgroundColor(tcell.Color240)
+
+	documentContentView := tview.NewTextView()
+	documentMetaInfoView := tview.NewTextView()
+	documents, _ := readDocuments()
+	documentTable := buildDocumentTable(documents, documentContentView, documentMetaInfoView, tagInputField)
+	fillDocumentTable(documents, *documentTable)
+
+
 
 	tagInputField.SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEnter {
@@ -96,7 +102,7 @@ func mainView() {
 			config.Log.InfoLog.Printf(text)
 			selectedRow, _ := documentTable.GetSelection()
 			document := documents[selectedRow]
-			document.Tags = append(document.Tags, text)
+			document.Tags = strings.Split(text, SPACE)
 			config.Log.InfoLog.Printf(document.Info.Name())
 			config.Log.InfoLog.Printf("%v", documents)
 			fillDocumentTable(documents, *documentTable)
