@@ -1,6 +1,9 @@
 package models
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 type Document struct {
 	Path string
@@ -9,5 +12,5 @@ type Document struct {
 }
 
 func (document Document) String() string {
-	return document.Info.Name()
+	return fmt.Sprintf("%s %s", document.Info.Name(), document.Tags)
 }

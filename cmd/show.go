@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
+	"time"
 )
 
 func ShowCmd() *cobra.Command {
@@ -31,7 +32,7 @@ func handleShowCommand() (string, error) {
 	return "", nil
 }
 
-func readDocuments() ([]models.Document, error) {
+func readDocuments() ([]*models.Document, error) {
 	WrittenDirectory := viper.GetString(WrittenDirectory)
 	documents, err := service.Read(WrittenDirectory)
 	if err != nil {
@@ -43,6 +44,15 @@ func readDocuments() ([]models.Document, error) {
 func init() {
 	showCmd := ShowCmd()
 	rootCmd.AddCommand(showCmd)
+}
+
+func fillDocumentTable(documents []*models.Document, documentTable tview.Table) {
+	for row, document := range documents {
+		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
+		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().Format(time.RFC822)))
+		documentTable.SetCell(row, 2, tview.NewTableCell(fmt.Sprintf("%s", document.Tags)))
+	}
+
 }
 
 func mainView() {
@@ -69,21 +79,23 @@ func mainView() {
 			},
 		)
 
-	for row, document := range documents {
-		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
-		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().String()))
-		documentTable.SetCell(row, 2, tview.NewTableCell(fmt.Sprintf("%s", document.Tags)))
-	}
+	fillDocumentTable(documents, *documentTable)
 
 	tagInputField := tview.NewInputField().
 		SetLabel("Tag").
-		SetFieldBackgroundColor(tcell.Color240).
-		SetDoneFunc(func(key tcell.Key) {
+		SetFieldBackgroundColor(tcell.Color240)
 
-			if key == tcell.KeyEnter {
-
-			}
-
+	tagInputField.SetDoneFunc(func(key tcell.Key) {
+		if key == tcell.KeyEnter {
+			text := tagInputField.GetText()
+			config.Log.InfoLog.Printf(text)
+			selectedRow, _ := documentTable.GetSelection()
+			document := documents[selectedRow]
+			document.Tags = append(document.Tags, text)
+			config.Log.InfoLog.Printf(document.Info.Name())
+			config.Log.InfoLog.Printf("%v", documents)
+			fillDocumentTable(documents, *documentTable)
+		}
 	})
 
 	documentGrid := tview.NewGrid().

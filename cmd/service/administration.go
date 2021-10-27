@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 )
 
-func Read(path string) ([]models.Document, error) {
-	var documents []models.Document
+func Read(path string) ([]*models.Document, error) {
+	var documents []*models.Document
 	err := filepath.Walk(path,
 		func(path string, info os.FileInfo, err error) error {
 
@@ -20,7 +20,7 @@ func Read(path string) ([]models.Document, error) {
 				return nil
 			}
 
-			document := models.Document{
+			document := &models.Document{
 				Path: path,
 				Info: info,
 				Tags: []string{"dummy0", "dummy1"},
