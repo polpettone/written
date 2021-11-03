@@ -1,4 +1,4 @@
 package cmd
 
-const WrittenDirectory = "path_to_written_directory"
-const PatternsDirectory  = "path_to_patterns_directory"
+const WrittenDirectory = "written_directory"
+const PatternsDirectory  = "pattern_directory"

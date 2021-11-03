@@ -28,7 +28,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.written/config.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/written/config.yaml)")
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
@@ -48,7 +48,7 @@ func initConfig() {
 		// Search config in home directory with name ".written" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".written/config.yaml")
+		viper.SetConfigName(".config/written/config.yaml")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
