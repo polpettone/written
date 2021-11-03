@@ -7,10 +7,10 @@ import (
 	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/cmd/service"
 	"github.com/rivo/tview"
+	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
-	"github.com/skratchdot/open-golang/open"
 	"strings"
 	"time"
 )
@@ -119,7 +119,7 @@ func mainView() {
 
 	grid := tview.NewGrid().
 		SetRows(2, 0, 2).
-		SetColumns(100, 0).
+		SetColumns(70, 0).
 		SetBorders(true)
 
 	// Layout for screens narrower than 100 cells (menu and side bar are hidden).
