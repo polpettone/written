@@ -6,9 +6,9 @@ import (
 )
 
 type Document struct {
-	Path string
-	Info os.FileInfo
-	Tags []string
+	Path string `json:"Path"`
+	Info os.FileInfo `json:"-"`
+	Tags []string `json:"Tags"`
 }
 
 func (document Document) String() string {
