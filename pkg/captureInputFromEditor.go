@@ -29,7 +29,7 @@ func CaptureInputFromEditor(content string) (string, error) {
 		return "", err
 	}
 
-	if err = openFileInEditor(filename); err != nil {
+	if err = OpenFileInEditor(filename); err != nil {
 		return "", err
 	}
 
@@ -41,7 +41,7 @@ func CaptureInputFromEditor(content string) (string, error) {
 	return strings.TrimSpace(string(bytes)), nil
 }
 
-func openFileInEditor(filename string) error {
+func OpenFileInEditor(filename string) error {
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
 		editor = DefaultEditor

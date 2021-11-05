@@ -7,8 +7,9 @@ import (
 	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/cmd/service"
 	"github.com/rivo/tview"
-	"github.com/skratchdot/open-golang/open"
 	"io/ioutil"
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -120,11 +121,20 @@ func MainView(documents []*models.Document) {
 				if event.Key() == tcell.KeyCtrlO {
 					selectedRow, _ := documentTable.GetSelection()
 					document := documents[selectedRow]
-					config.Log.InfoLog.Printf("%s", document.Path)
-					err := open.RunWith(document.Path, "vim")
+
+					exectuable := "terminator"
+					command := exec.Command(exectuable, "-e", "vim " + document.Path)
+					command.Stdin = os.Stdin
+					command.Stdout = os.Stdout
+					command.Stderr = os.Stderr
+					err := command.Run()
 					if err != nil {
-						config.Log.ErrorLog.Printf("%v", err)
+						config.Log.ErrorLog.Printf("%s", err)
+						return nil
 					}
+					config.Log.InfoLog.Printf("open %s in editor", document.Path)
+
+
 				}
 
 				return event
