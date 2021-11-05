@@ -10,6 +10,11 @@ import (
 	"testing"
 )
 
+func TestGetFilename(t *testing.T) {
+	_, filename, _, _ := runtime.Caller(0)
+	t.Logf("Current test filename: %s", filename)
+}
+
 func setupTestDocuments() []*models.Document {
 	d0 := &models.Document{
 		Path: "/tmp/d0",
@@ -64,6 +69,21 @@ func Test_Read_Documents(t *testing.T) {
 	}
 }
 
+func Test_UpdateDocuments(t *testing.T) {
+	id, _ := uuid.NewUUID()
+	path := "/tmp/written-test-documents-" + id.String()
+
+	documents,_ := Read("../../test-data/documents")
+	documents[0].Tags = append(documents[0].Tags, "neu")
+
+	_ = Save(path, documents)
+	loaded, _ := Load(path, documents)
+
+	if loaded[0].Info == nil {
+		t.Errorf("File Info should not be nil")
+	}
+}
+
 func Test_SaveAndLoad(t *testing.T) {
 	id, _ := uuid.NewUUID()
 	path := "/tmp/written-test-documents-" + id.String()
@@ -74,7 +94,7 @@ func Test_SaveAndLoad(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	loaded, err := Load(path)
+	loaded, err := Load(path, documents)
 
 	if err != nil {
 		t.Errorf("%v", err)
@@ -83,10 +103,4 @@ func Test_SaveAndLoad(t *testing.T) {
 	if len(loaded) != 2 {
 		t.Errorf("wanted %d got %d", 2, len(loaded))
 	}
-
-}
-
-func TestGetFilename(t *testing.T) {
-	_, filename, _, _ := runtime.Caller(0)
-	t.Logf("Current test filename: %s", filename)
 }

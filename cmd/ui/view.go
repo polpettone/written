@@ -5,6 +5,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
+	"github.com/polpettone/written/cmd/service"
 	"github.com/rivo/tview"
 	"github.com/skratchdot/open-golang/open"
 	"io/ioutil"
@@ -99,7 +100,13 @@ func MainView(documents []*models.Document) {
 		SetInputCapture(
 			func(event *tcell.EventKey) *tcell.EventKey {
 
+
+
 				if event.Key() == tcell.KeyCtrlC {
+					err := service.Save("/home/akim/d-meta.json", documents)
+					if err != nil {
+						config.Log.ErrorLog.Printf("%s", err)
+					}
 					app.Stop()
 				}
 

@@ -32,7 +32,7 @@ func Read(path string) ([]*models.Document, error) {
 			document := &models.Document{
 				Path: path,
 				Info: info,
-				Tags: []string{"dummy0", "dummy1"},
+				Tags: []string{},
 			}
 			documents = append(documents, document)
 			return nil
@@ -68,16 +68,25 @@ func Save(path string, documents []*models.Document) error {
 	return nil
 }
 
-func Load(path string) ([]*models.Document, error) {
+func Load(path string, currentDocuments []*models.Document) ([]*models.Document, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return currentDocuments, err
 	}
 	var loaded []*models.Document
 	err = Unmarshal(f, &loaded)
 	if err != nil {
 		return nil, err
 	}
-	return loaded, err
+
+	for _, currentDocument := range currentDocuments {
+		for _, document := range loaded {
+			if currentDocument.Path == document.Path {
+				currentDocument.Tags = append(currentDocument.Tags, document.Tags...)
+			}
+		}
+	}
+
+	return currentDocuments, err
 }
 

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/cmd/service"
 	"github.com/polpettone/written/cmd/ui"
@@ -26,6 +27,10 @@ func ShowCmd() *cobra.Command {
 
 func handleShowCommand() (string, error) {
 	documents, _ := readDocuments()
+	documents, err := service.Load("/home/akim/d-meta.json", documents)
+	if err != nil {
+		config.Log.ErrorLog.Printf("%s", err)
+	}
 	ui.MainView(documents)
 	return "", nil
 }
