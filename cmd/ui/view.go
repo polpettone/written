@@ -41,7 +41,7 @@ func buildDocumentTable(documents []*models.Document,
 					config.Log.ErrorLog.Printf("{}", err)
 				}
 				documentContentView.SetText(string(bytes))
-				documentMetaInfoView.SetText(fmt.Sprintf("%s \n %s", document.Path, document.Info.Name()))
+				documentMetaInfoView.SetText(documentMetaView(*document))
 				tagInputField.SetText(fmt.Sprintf("%s", strings.Join(document.Tags, SPACE)))
 			},
 		)
