@@ -9,8 +9,9 @@ import (
 var Log *Logging
 
 type Logging struct {
-	InfoLog    *log.Logger
-	ErrorLog   *log.Logger
+	InfoLog  *log.Logger
+	ErrorLog *log.Logger
+	DebugLog *log.Logger
 }
 
 func init() {
@@ -21,18 +22,22 @@ func NewLogging(enabled bool) *Logging {
 
 	var infoLog *log.Logger
 	var errorLog *log.Logger
+	var debugLog *log.Logger
 
 	if enabled {
 		infoLog = log.New(openLogFile("info.log"), "INFO\t", log.Ldate|log.Ltime)
 		errorLog = log.New(openLogFile("error.log"), "ERROR\t", log.Ldate|log.Ltime)
+		debugLog = log.New(openLogFile("debug.log"), "DEBUG\t", log.Ldate|log.Ltime)
 	} else {
 		infoLog = log.New(ioutil.Discard, "", 0)
 		errorLog = log.New(ioutil.Discard, "", 0)
+		debugLog = log.New(ioutil.Discard, "", 0)
 	}
 
 	app := &Logging{
-		InfoLog:    infoLog,
+		InfoLog:  infoLog,
 		ErrorLog: errorLog,
+		DebugLog: debugLog,
 	}
 
 	return app

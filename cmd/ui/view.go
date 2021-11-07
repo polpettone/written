@@ -60,8 +60,6 @@ func MainView(documents []*models.Document) {
 	documentTable := buildDocumentTable(documents, documentContentView, documentMetaInfoView, tagInputField)
 	fillDocumentTable(documents, *documentTable)
 
-
-
 	tagInputField.SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEnter {
 			text := tagInputField.GetText()
@@ -101,10 +99,9 @@ func MainView(documents []*models.Document) {
 		SetInputCapture(
 			func(event *tcell.EventKey) *tcell.EventKey {
 
-
-
 				if event.Key() == tcell.KeyCtrlC {
 					err := service.Save("/home/akim/d-meta.json", documents)
+					config.Log.DebugLog.Printf("Key: %s", event.Key())
 					if err != nil {
 						config.Log.ErrorLog.Printf("%s", err)
 					}
@@ -112,29 +109,18 @@ func MainView(documents []*models.Document) {
 				}
 
 				if event.Key() == tcell.KeyCtrlD {
+					config.Log.DebugLog.Printf("Key: %s", event.Key())
 					app.SetFocus(documentTable)
 				}
 				if event.Key() == tcell.KeyCtrlT {
+					config.Log.DebugLog.Printf("Key: %s", event.Key())
 					app.SetFocus(tagInputField)
 				}
 
 				if event.Key() == tcell.KeyCtrlO {
 					selectedRow, _ := documentTable.GetSelection()
 					document := documents[selectedRow]
-
-					exectuable := "terminator"
-					command := exec.Command(exectuable, "-e", "vim " + document.Path)
-					command.Stdin = os.Stdin
-					command.Stdout = os.Stdout
-					command.Stderr = os.Stderr
-					err := command.Run()
-					if err != nil {
-						config.Log.ErrorLog.Printf("%s", err)
-						return nil
-					}
-					config.Log.InfoLog.Printf("open %s in editor", document.Path)
-
-
+					openFileInTerminator(document.Path)
 				}
 
 				return event
@@ -142,4 +128,17 @@ func MainView(documents []*models.Document) {
 		Run(); err != nil {
 		panic(err)
 	}
+}
+
+func openFileInTerminator(path string) {
+	exectuable := "terminator"
+	command := exec.Command(exectuable, "-e", "vim " + path)
+	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	err := command.Run()
+	if err != nil {
+		config.Log.ErrorLog.Printf("%s", err)
+	}
+	config.Log.InfoLog.Printf("open %s in editor", path)
 }
