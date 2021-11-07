@@ -48,6 +48,8 @@ func buildDocumentTable(documents []*models.Document,
 	return documentTable
 }
 
+const commandOverview = "CTRL+T: Tabs, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open"
+
 func MainView(documents []*models.Document) {
 	app := tview.NewApplication()
 
@@ -57,6 +59,9 @@ func MainView(documents []*models.Document) {
 
 	documentContentView := tview.NewTextView()
 	documentMetaInfoView := tview.NewTextView()
+	commandOverviewView := tview.NewTextView()
+	commandOverviewView.SetText(commandOverview)
+
 	documentTable := buildDocumentTable(documents, documentContentView, documentMetaInfoView, tagInputField)
 	fillDocumentTable(documents, *documentTable)
 
@@ -81,17 +86,19 @@ func MainView(documents []*models.Document) {
 		AddItem(tagInputField, 2, 0, 1, 2, 10, 0, false)
 
 	grid := tview.NewGrid().
-		SetRows(2, 0, 2).
+		SetRows(3, 0, 2).
 		SetColumns(70, 0).
 		SetBorders(true)
 
 	// Layout for screens narrower than 100 cells (menu and side bar are hidden).
 	grid.AddItem(documentTable, 0, 0, 0, 0, 0, 0, false).
-		AddItem(documentGrid, 1, 0, 1, 2, 0, 0, false)
+		AddItem(documentGrid, 1, 0, 1, 2, 0, 0, false).
+		AddItem(commandOverviewView, 2, 0, 0, 2, 0, 0, false)
 
 	// Layout for screens wider than 100 cells.
 	grid.AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
-		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false)
+		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false).
+		AddItem(commandOverviewView, 2, 0, 1, 2, 0, 100, false)
 
 	if err := app.
 		SetRoot(grid, true).
@@ -132,7 +139,7 @@ func MainView(documents []*models.Document) {
 
 func openFileInTerminator(path string) {
 	exectuable := "terminator"
-	command := exec.Command(exectuable, "-e", "vim " + path)
+	command := exec.Command(exectuable, "-e", "vim "+path)
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
