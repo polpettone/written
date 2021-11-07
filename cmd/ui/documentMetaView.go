@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-const outputPattern = `
-%s
+const outputPattern =
+`%s
 %s
 %s
 `
