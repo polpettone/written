@@ -7,6 +7,7 @@ import (
 	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/cmd/service"
 	"github.com/rivo/tview"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -107,7 +108,8 @@ func MainView(documents []*models.Document) {
 			func(event *tcell.EventKey) *tcell.EventKey {
 
 				if event.Key() == tcell.KeyCtrlC {
-					err := service.Save("/home/akim/d-meta.json", documents)
+					metaDataPath := viper.GetString(config.MetaDataPath)
+					err := service.Save(metaDataPath, documents)
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
 					if err != nil {
 						config.Log.ErrorLog.Printf("%s", err)

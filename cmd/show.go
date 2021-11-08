@@ -27,7 +27,9 @@ func ShowCmd() *cobra.Command {
 
 func handleShowCommand() (string, error) {
 	documents, _ := readDocuments()
-	documents, err := service.Load("/home/akim/d-meta.json", documents)
+	metaDataPath := viper.GetString(config.MetaDataPath)
+
+	documents, err := service.Load(metaDataPath, documents)
 	if err != nil {
 		config.Log.ErrorLog.Printf("%s", err)
 	}
@@ -36,7 +38,7 @@ func handleShowCommand() (string, error) {
 }
 
 func readDocuments() ([]*models.Document, error) {
-	WrittenDirectory := viper.GetString(WrittenDirectory)
+	WrittenDirectory := viper.GetString(config.WrittenDirectory)
 	documents, err := service.Read(WrittenDirectory)
 	if err != nil {
 		return nil, err

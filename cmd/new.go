@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/pkg"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -31,7 +32,7 @@ type PatternFile struct {
 
 func findPattern(pattern string) (string, error) {
 	fmt.Printf("Find pattern for name %s \n", pattern)
-	patternsDirectory := viper.GetString(PatternsDirectory)
+	patternsDirectory := viper.GetString(config.PatternsDirectory)
 
 	var patternFiles []PatternFile
 
@@ -90,7 +91,7 @@ func handleNewCommand(args []string, cobraCommand *cobra.Command) (string, error
 		return "", err
 	}
 
-	writtenDirectory := viper.GetString(WrittenDirectory)
+	writtenDirectory := viper.GetString(config.WrittenDirectory)
 
 	path := writtenDirectory + "/" + name
 
