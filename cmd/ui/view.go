@@ -21,6 +21,10 @@ func MainView(documents []*models.Document) {
 		SetLabel("Tags: ").
 		SetFieldBackgroundColor(tcell.Color240)
 
+	queryInputField := tview.NewInputField().
+		SetLabel("Query: ").
+		SetFieldBackgroundColor(tcell.Color240)
+
 	documentContentView := tview.NewTextView()
 	documentMetaInfoView := tview.NewTextView()
 	commandOverviewView := tview.NewTextView()
@@ -50,11 +54,13 @@ func MainView(documents []*models.Document) {
 		AddItem(tagInputField, 2, 0, 1, 2, 10, 0, false)
 
 	grid := tview.NewGrid().
-		SetRows(3, 0, 2).
+		SetRows(1, 0, 1, 1).
 		SetColumns(70, 0).
 		SetBorders(true)
 
-	grid.AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
+	grid.
+		AddItem(queryInputField, 0, 0, 1, 2, 0, 100, false).
+		AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
 		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false).
 		AddItem(commandOverviewView, 2, 0, 1, 2, 0, 100, false)
 
