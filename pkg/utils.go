@@ -59,3 +59,17 @@ func OpenFileInEditor(filename string) error {
 
 	return command.Run()
 }
+
+func OpenFileInTerminator(path string) error {
+	exectuable := "terminator"
+	command := exec.Command(exectuable, "-e", "vim "+path)
+	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	err := command.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+

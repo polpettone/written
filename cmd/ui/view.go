@@ -6,49 +6,15 @@ import (
 	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/cmd/service"
+	"github.com/polpettone/written/pkg"
 	"github.com/rivo/tview"
 	"github.com/spf13/viper"
 	"io/ioutil"
-	"os"
-	"os/exec"
 	"strings"
 	"time"
 )
 
 const SPACE = " "
-
-func fillDocumentTable(documents []*models.Document, documentTable tview.Table) {
-	for row, document := range documents {
-		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
-		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().Format(time.RFC822)))
-		documentTable.SetCell(row, 2, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
-	}
-
-}
-
-func buildDocumentTable(documents []*models.Document,
-	documentContentView *tview.TextView,
-	documentMetaInfoView *tview.TextView,
-	tagInputField *tview.InputField) *tview.Table {
-	documentTable := tview.
-		NewTable().
-		SetBorders(true).
-		SetSelectable(true, false).
-		SetSelectionChangedFunc(
-			func(row int, column int) {
-				document := documents[row]
-				bytes, err := ioutil.ReadFile(document.Path)
-				if err != nil {
-					config.Log.ErrorLog.Printf("{}", err)
-				}
-				documentContentView.SetText(string(bytes))
-				documentMetaInfoView.SetText(documentMetaView(*document))
-				tagInputField.SetText(fmt.Sprintf("%s", strings.Join(document.Tags, SPACE)))
-			},
-		)
-	return documentTable
-}
-
 const commandOverview = "CTRL+T: Tabs, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open"
 
 func MainView(documents []*models.Document) {
@@ -129,7 +95,10 @@ func MainView(documents []*models.Document) {
 				if event.Key() == tcell.KeyCtrlO {
 					selectedRow, _ := documentTable.GetSelection()
 					document := documents[selectedRow]
-					openFileInTerminator(document.Path)
+					err := pkg.OpenFileInTerminator(document.Path)
+					if err != nil {
+						config.Log.ErrorLog.Printf("%s", err)
+					}
 				}
 
 				return event
@@ -139,15 +108,33 @@ func MainView(documents []*models.Document) {
 	}
 }
 
-func openFileInTerminator(path string) {
-	exectuable := "terminator"
-	command := exec.Command(exectuable, "-e", "vim "+path)
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	err := command.Run()
-	if err != nil {
-		config.Log.ErrorLog.Printf("%s", err)
+func fillDocumentTable(documents []*models.Document, documentTable tview.Table) {
+	for row, document := range documents {
+		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
+		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().Format(time.RFC822)))
+		documentTable.SetCell(row, 2, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
 	}
-	config.Log.InfoLog.Printf("open %s in editor", path)
+}
+
+func buildDocumentTable(documents []*models.Document,
+	documentContentView *tview.TextView,
+	documentMetaInfoView *tview.TextView,
+	tagInputField *tview.InputField) *tview.Table {
+	documentTable := tview.
+		NewTable().
+		SetBorders(true).
+		SetSelectable(true, false).
+		SetSelectionChangedFunc(
+			func(row int, column int) {
+				document := documents[row]
+				bytes, err := ioutil.ReadFile(document.Path)
+				if err != nil {
+					config.Log.ErrorLog.Printf("{}", err)
+				}
+				documentContentView.SetText(string(bytes))
+				documentMetaInfoView.SetText(documentMetaView(*document))
+				tagInputField.SetText(fmt.Sprintf("%s", strings.Join(document.Tags, SPACE)))
+			},
+		)
+	return documentTable
 }
