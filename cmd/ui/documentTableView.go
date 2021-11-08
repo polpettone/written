@@ -7,14 +7,12 @@ import (
 	"github.com/rivo/tview"
 	"io/ioutil"
 	"strings"
-	"time"
 )
 
 func fillDocumentTable(documents []*models.Document, documentTable tview.Table) {
 	for row, document := range documents {
 		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
-		documentTable.SetCell(row, 1, tview.NewTableCell(document.Info.ModTime().Format(time.RFC822)))
-		documentTable.SetCell(row, 2, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
+		documentTable.SetCell(row, 1, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
 	}
 }
 
@@ -23,7 +21,7 @@ func buildDocumentTable(documents []*models.Document,
 	documentMetaInfoView *tview.TextView,
 	tagInputField *tview.InputField) *tview.Table {
 	documentTable := tview.NewTable().
-		SetBorders(true).
+		SetBorders(false).
 		SetSelectable(true, false).
 		SetSelectionChangedFunc(
 			func(row int, column int) {
