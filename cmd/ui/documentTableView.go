@@ -20,6 +20,7 @@ func buildDocumentTable(documents []*models.Document,
 	documentContentView *tview.TextView,
 	documentMetaInfoView *tview.TextView,
 	tagInputField *tview.InputField) *tview.Table {
+
 	documentTable := tview.NewTable().
 		SetBorders(false).
 		SetSelectable(true, false).

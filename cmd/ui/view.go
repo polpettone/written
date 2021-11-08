@@ -54,12 +54,6 @@ func MainView(documents []*models.Document) {
 		SetColumns(70, 0).
 		SetBorders(true)
 
-	// Layout for screens narrower than 100 cells (menu and side bar are hidden).
-	grid.AddItem(documentTable, 0, 0, 0, 0, 0, 0, false).
-		AddItem(documentGrid, 1, 0, 1, 2, 0, 0, false).
-		AddItem(commandOverviewView, 2, 0, 0, 2, 0, 0, false)
-
-	// Layout for screens wider than 100 cells.
 	grid.AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
 		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false).
 		AddItem(commandOverviewView, 2, 0, 1, 2, 0, 100, false)
