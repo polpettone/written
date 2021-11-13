@@ -26,12 +26,9 @@ func ShowCmd() *cobra.Command {
 
 
 func handleShowCommand() (string, error) {
-	documents, _ := readDocuments()
-	metaDataPath := viper.GetString(config.MetaDataPath)
-
-	documents, err := service.Load(metaDataPath, documents)
+	documents, err := readDocuments()
 	if err != nil {
-		config.Log.ErrorLog.Printf("%s", err)
+		return "", err
 	}
 	ui.MainView(documents)
 	return "", nil

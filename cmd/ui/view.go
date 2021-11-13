@@ -4,10 +4,8 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
-	"github.com/polpettone/written/cmd/service"
 	"github.com/polpettone/written/pkg"
 	"github.com/rivo/tview"
-	"github.com/spf13/viper"
 	"strings"
 )
 
@@ -71,12 +69,7 @@ func MainView(documents []*models.Document) {
 			func(event *tcell.EventKey) *tcell.EventKey {
 
 				if event.Key() == tcell.KeyCtrlC {
-					metaDataPath := viper.GetString(config.MetaDataPath)
-					err := service.Save(metaDataPath, documents)
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
-					if err != nil {
-						config.Log.ErrorLog.Printf("%s", err)
-					}
 					app.Stop()
 				}
 
