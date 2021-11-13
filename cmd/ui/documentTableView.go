@@ -5,10 +5,16 @@ import (
 	"github.com/polpettone/written/cmd/models"
 	"github.com/rivo/tview"
 	"io/ioutil"
+	"sort"
 	"strings"
 )
 
 func fillDocumentTable(documents []*models.Document, documentTable tview.Table) {
+
+	sort.Slice(documents, func(i, j int) bool {
+		return documents[i].Info.ModTime().After(documents[j].Info.ModTime())
+	})
+
 	for row, document := range documents {
 		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
 		documentTable.SetCell(row, 1, tview.NewTableCell(strings.Join(document.Tags, SPACE)))

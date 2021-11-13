@@ -9,7 +9,7 @@ import (
 )
 
 const SPACE = " "
-const commandOverview = "CTRL+T: Tabs, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open"
+const commandOverview = "CTRL+Q: Query, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open"
 
 func MainView(documents []*models.Document) {
 	app := tview.NewApplication()
