@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
 	"github.com/rivo/tview"
@@ -18,8 +17,7 @@ func fillDocumentTable(documents []*models.Document, documentTable tview.Table) 
 
 func buildDocumentTable(documents []*models.Document,
 	documentContentView *tview.TextView,
-	documentMetaInfoView *tview.TextView,
-	tagInputField *tview.InputField) *tview.Table {
+	documentMetaInfoView *tview.TextView) *tview.Table {
 
 	documentTable := tview.NewTable().
 		SetBorders(false).
@@ -33,7 +31,6 @@ func buildDocumentTable(documents []*models.Document,
 				}
 				documentContentView.SetText(string(bytes))
 				documentMetaInfoView.SetText(documentMetaView(*document))
-				tagInputField.SetText(fmt.Sprintf("%s", strings.Join(document.Tags, SPACE)))
 			},
 		)
 	return documentTable

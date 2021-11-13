@@ -6,7 +6,6 @@ import (
 	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/pkg"
 	"github.com/rivo/tview"
-	"strings"
 )
 
 const SPACE = " "
@@ -14,10 +13,6 @@ const commandOverview = "CTRL+T: Tabs, CTRL+D: Document Table, CTRL+C: Quit, CTR
 
 func MainView(documents []*models.Document) {
 	app := tview.NewApplication()
-
-	tagInputField := tview.NewInputField().
-		SetLabel("Tags: ").
-		SetFieldBackgroundColor(tcell.Color240)
 
 	queryInputField := tview.NewInputField().
 		SetLabel("Query: ").
@@ -28,28 +23,14 @@ func MainView(documents []*models.Document) {
 	commandOverviewView := tview.NewTextView()
 	commandOverviewView.SetText(commandOverview)
 
-	documentTable := buildDocumentTable(documents, documentContentView, documentMetaInfoView, tagInputField)
+	documentTable := buildDocumentTable(documents, documentContentView, documentMetaInfoView)
 	fillDocumentTable(documents, *documentTable)
-
-	tagInputField.SetDoneFunc(func(key tcell.Key) {
-		if key == tcell.KeyEnter {
-			text := tagInputField.GetText()
-			config.Log.InfoLog.Printf(text)
-			selectedRow, _ := documentTable.GetSelection()
-			document := documents[selectedRow]
-			document.Tags = strings.Split(text, SPACE)
-			config.Log.InfoLog.Printf(document.Info.Name())
-			config.Log.InfoLog.Printf("%v", documents)
-			fillDocumentTable(documents, *documentTable)
-		}
-	})
 
 	documentGrid := tview.NewGrid().
 		SetRows(10, 0, 2).
 		SetBorders(true).
 		AddItem(documentContentView, 1, 0, 1, 2, 0, 0, false).
-		AddItem(documentMetaInfoView, 0, 0, 1, 2, 10, 0, false).
-		AddItem(tagInputField, 2, 0, 1, 2, 10, 0, false)
+		AddItem(documentMetaInfoView, 0, 0, 1, 2, 10, 0, false)
 
 	grid := tview.NewGrid().
 		SetRows(1, 0, 1, 1).
@@ -77,9 +58,10 @@ func MainView(documents []*models.Document) {
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
 					app.SetFocus(documentTable)
 				}
-				if event.Key() == tcell.KeyCtrlT {
+
+				if event.Key() == tcell.KeyCtrlQ {
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
-					app.SetFocus(tagInputField)
+					app.SetFocus(queryInputField)
 				}
 
 				if event.Key() == tcell.KeyCtrlO {
