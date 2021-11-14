@@ -11,13 +11,17 @@ import (
 )
 
 const SPACE = " "
-const commandOverview = "CTRL+Q: Query, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open, CTRL+R: Refresh"
+const commandOverview = "CTRL+Q: Query, CTRL+F: Filter, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open, CTRL+R: Refresh"
 
 func MainView(documents []*models.Document) {
 	app := tview.NewApplication()
 
 	queryInputField := tview.NewInputField().
 		SetLabel("Query: ").
+		SetFieldBackgroundColor(tcell.Color240)
+
+	filterInputField := tview.NewInputField().
+		SetLabel("Filter: ").
 		SetFieldBackgroundColor(tcell.Color240)
 
 	documentContentView := tview.NewTextView()
@@ -45,10 +49,10 @@ func MainView(documents []*models.Document) {
 	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
 
 	documentGrid := tview.NewGrid().
-		SetRows(10, 0, 2).
+		SetRows(10, 0).
 		SetBorders(true).
-		AddItem(documentContentView, 1, 0, 1, 2, 0, 0, false).
-		AddItem(documentMetaInfoView, 0, 0, 1, 2, 10, 0, false)
+		AddItem(documentMetaInfoView, 0, 0, 1, 2, 10, 0, false).
+		AddItem(documentContentView, 1, 0, 1, 2, 0, 0, false)
 
 	grid := tview.NewGrid().
 		SetRows(1, 0, 1, 1).
@@ -56,7 +60,8 @@ func MainView(documents []*models.Document) {
 		SetBorders(true)
 
 	grid.
-		AddItem(queryInputField, 0, 0, 1, 2, 0, 100, false).
+		AddItem(queryInputField, 0, 0, 1,1, 0, 100, false).
+		AddItem(filterInputField, 0, 1, 1, 1, 0, 100, false).
 		AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
 		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false).
 		AddItem(commandOverviewView, 2, 0, 1, 2, 0, 100, false)
@@ -80,6 +85,11 @@ func MainView(documents []*models.Document) {
 				if event.Key() == tcell.KeyCtrlQ {
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
 					app.SetFocus(queryInputField)
+				}
+
+				if event.Key() == tcell.KeyCtrlF {
+					config.Log.DebugLog.Printf("Key: %s", event.Key())
+					app.SetFocus(filterInputField)
 				}
 
 				if event.Key() == tcell.KeyCtrlR {
