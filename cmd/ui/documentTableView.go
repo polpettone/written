@@ -10,7 +10,11 @@ import (
 	"strings"
 )
 
-func fillDocumentTable(documents []*models.Document, documentTable tview.Table) {
+func fillDocumentTable(
+	documents []*models.Document,
+	documentTable *tview.Table,
+	documentContentView *tview.TextView,
+	documentMetaInfoView *tview.TextView) {
 
 	documentTable.Clear()
 
@@ -22,27 +26,19 @@ func fillDocumentTable(documents []*models.Document, documentTable tview.Table) 
 		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
 		documentTable.SetCell(row, 1, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
 	}
-}
 
-func buildDocumentTable(documents []*models.Document,
-	documentContentView *tview.TextView,
-	documentMetaInfoView *tview.TextView) *tview.Table {
+	documentTable.SetSelectionChangedFunc(
+		func(row int, column int) {
+			document := documents[row]
+			content, err := ioutil.ReadFile(document.Path)
+			tags := service.ExtractTags(string(content))
+			document.Tags = tags
+			if err != nil {
+				config.Log.ErrorLog.Printf("{}", err)
+			}
+			documentContentView.SetText(string(content))
+			documentMetaInfoView.SetText(documentMetaView(*document))
+		},
+	)
 
-	documentTable := tview.NewTable().
-		SetBorders(false).
-		SetSelectable(true, false).
-		SetSelectionChangedFunc(
-			func(row int, column int) {
-				document := documents[row]
-				content, err := ioutil.ReadFile(document.Path)
-				tags := service.ExtractTags(string(content))
-				document.Tags = tags
-				if err != nil {
-					config.Log.ErrorLog.Printf("{}", err)
-				}
-				documentContentView.SetText(string(content))
-				documentMetaInfoView.SetText(documentMetaView(*document))
-			},
-		)
-	return documentTable
 }

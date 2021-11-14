@@ -37,8 +37,11 @@ func MainView(documents []*models.Document) {
 	commandOverviewView := tview.NewTextView()
 	commandOverviewView.SetText(commandOverview)
 
-	documentTable := buildDocumentTable(documents, documentContentView, documentMetaInfoView)
-	fillDocumentTable(documents, *documentTable)
+	documentTable := tview.NewTable().
+		SetBorders(false).
+		SetSelectable(true, false)
+
+	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView)
 
 	documentGrid := tview.NewGrid().
 		SetRows(10, 0, 2).
@@ -80,14 +83,7 @@ func MainView(documents []*models.Document) {
 
 				if event.Key() == tcell.KeyCtrlR {
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
-
-					WrittenDirectory := viper.GetString(config.WrittenDirectory)
-					documents, err := service.Read(WrittenDirectory)
-					if err != nil {
-						config.Log.ErrorLog.Printf("%s", err)
-					}
-
-					fillDocumentTable(documents, *documentTable)
+					updateDocuments(documentTable, documentContentView, documentMetaInfoView)
 				}
 
 				if event.Key() == tcell.KeyCtrlO {
@@ -104,4 +100,16 @@ func MainView(documents []*models.Document) {
 		Run(); err != nil {
 		panic(err)
 	}
+}
+func updateDocuments(
+	documentTable *tview.Table,
+	documentContentView *tview.TextView,
+	documentMetaInfoView *tview.TextView,
+) {
+	WrittenDirectory := viper.GetString(config.WrittenDirectory)
+	documents, err := service.Read(WrittenDirectory)
+	if err != nil {
+		config.Log.ErrorLog.Printf("%s", err)
+	}
+	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView)
 }
