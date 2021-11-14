@@ -32,15 +32,20 @@ func fillDocumentTable(
 
 	documentTable.SetSelectionChangedFunc(
 		func(row int, column int) {
-			document := filteredDocuments[row]
-			content, err := ioutil.ReadFile(document.Path)
-			tags := service.ExtractTags(string(content))
-			document.Tags = tags
-			if err != nil {
-				config.Log.ErrorLog.Printf("{}", err)
+			if len(filteredDocuments) > row {
+				document := filteredDocuments[row]
+				content, err := ioutil.ReadFile(document.Path)
+				tags := service.ExtractTags(string(content))
+				document.Tags = tags
+				if err != nil {
+					config.Log.ErrorLog.Printf("{}", err)
+				}
+				documentContentView.SetText(string(content))
+				documentMetaInfoView.SetText(documentMetaView(*document))
+			} else {
+				documentContentView.Clear()
+				documentMetaInfoView.Clear()
 			}
-			documentContentView.SetText(string(content))
-			documentMetaInfoView.SetText(documentMetaView(*document))
 		},
 	)
 

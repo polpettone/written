@@ -36,12 +36,10 @@ func MainView(documents []*models.Document) {
 	queryInputField.
 		SetInputCapture(
 			func(event *tcell.EventKey) *tcell.EventKey {
-				if event.Key() == tcell.KeyEnter {
-					config.Log.DebugLog.Printf("Key: %s", event.Key())
-					query := queryInputField.GetText()
-					config.Log.InfoLog.Printf("Filter Documents by: s%", query)
-					updateDocuments(documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
-				}
+				config.Log.DebugLog.Printf("Key: %s", event.Key())
+				query := queryInputField.GetText()
+				config.Log.InfoLog.Printf("Filter Documents by: s%", query)
+				updateDocuments(documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
 				return event
 			},
 		)
@@ -60,7 +58,7 @@ func MainView(documents []*models.Document) {
 		SetBorders(true)
 
 	grid.
-		AddItem(queryInputField, 0, 0, 1,1, 0, 100, false).
+		AddItem(queryInputField, 0, 0, 1, 1, 0, 100, false).
 		AddItem(filterInputField, 0, 1, 1, 1, 0, 100, false).
 		AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
 		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false).
@@ -124,4 +122,6 @@ func updateDocuments(
 		config.Log.ErrorLog.Printf("%s", err)
 	}
 	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView, query)
+
+	documentTable.Select(0, 0)
 }
