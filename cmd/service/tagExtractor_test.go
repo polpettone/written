@@ -38,6 +38,18 @@ func Test_extractTags(t *testing.T) {
 		},
 
 		{
+			name:    "no tag when markdown sub header",
+			content: "## header content",
+			want:    []string{},
+		},
+
+		{
+			name:    "no tag when markdown sub sub header",
+			content: "### header content",
+			want:    []string{},
+		},
+
+		{
 			name: "multi line with markdown header and one tag",
 			content: `
 			# header
@@ -46,6 +58,7 @@ func Test_extractTags(t *testing.T) {
 			`,
 			want: []string{"#tag"},
 		},
+
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
