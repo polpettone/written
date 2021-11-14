@@ -4,12 +4,14 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
+	"github.com/polpettone/written/cmd/service"
 	"github.com/polpettone/written/pkg"
 	"github.com/rivo/tview"
+	"github.com/spf13/viper"
 )
 
 const SPACE = " "
-const commandOverview = "CTRL+Q: Query, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open"
+const commandOverview = "CTRL+Q: Query, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open, CTRL+R: Refresh"
 
 func MainView(documents []*models.Document) {
 	app := tview.NewApplication()
@@ -62,6 +64,18 @@ func MainView(documents []*models.Document) {
 				if event.Key() == tcell.KeyCtrlQ {
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
 					app.SetFocus(queryInputField)
+				}
+
+				if event.Key() == tcell.KeyCtrlR {
+					config.Log.DebugLog.Printf("Key: %s", event.Key())
+
+					WrittenDirectory := viper.GetString(config.WrittenDirectory)
+					documents, err := service.Read(WrittenDirectory)
+					if err != nil {
+						config.Log.ErrorLog.Printf("%s", err)
+					}
+
+					fillDocumentTable(documents, *documentTable)
 				}
 
 				if event.Key() == tcell.KeyCtrlO {

@@ -12,6 +12,8 @@ import (
 
 func fillDocumentTable(documents []*models.Document, documentTable tview.Table) {
 
+	documentTable.Clear()
+
 	sort.Slice(documents, func(i, j int) bool {
 		return documents[i].Info.ModTime().After(documents[j].Info.ModTime())
 	})
