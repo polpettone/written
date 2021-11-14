@@ -20,6 +20,18 @@ func MainView(documents []*models.Document) {
 		SetLabel("Query: ").
 		SetFieldBackgroundColor(tcell.Color240)
 
+	queryInputField.
+		SetInputCapture(
+			func(event *tcell.EventKey) *tcell.EventKey {
+				if event.Key() == tcell.KeyEnter {
+					config.Log.DebugLog.Printf("Key: %s", event.Key())
+					query := queryInputField.GetText()
+					config.Log.InfoLog.Printf("Filter Documents by: s%", query)
+				}
+				return event
+			},
+		)
+
 	documentContentView := tview.NewTextView()
 	documentMetaInfoView := tview.NewTextView()
 	commandOverviewView := tview.NewTextView()
@@ -93,4 +105,3 @@ func MainView(documents []*models.Document) {
 		panic(err)
 	}
 }
-
