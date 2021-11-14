@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
+	"github.com/polpettone/written/cmd/service"
 	"github.com/rivo/tview"
 	"io/ioutil"
 	"sort"
@@ -31,11 +32,13 @@ func buildDocumentTable(documents []*models.Document,
 		SetSelectionChangedFunc(
 			func(row int, column int) {
 				document := documents[row]
-				bytes, err := ioutil.ReadFile(document.Path)
+				content, err := ioutil.ReadFile(document.Path)
+				tags := service.ExtractTags(string(content))
+				document.Tags = tags
 				if err != nil {
 					config.Log.ErrorLog.Printf("{}", err)
 				}
-				documentContentView.SetText(string(bytes))
+				documentContentView.SetText(string(content))
 				documentMetaInfoView.SetText(documentMetaView(*document))
 			},
 		)

@@ -26,7 +26,7 @@ func Read(path string) ([]*models.Document, error) {
 			}
 
 			content, err := ioutil.ReadFile(path)
-			tags := extractTags(string(content))
+			tags := ExtractTags(string(content))
 
 			document := &models.Document{
 				Path: path,

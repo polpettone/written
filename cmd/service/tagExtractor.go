@@ -4,7 +4,7 @@ import "strings"
 
 const TAG_PREFIX = "#"
 
-func extractTags(content string) []string {
+func ExtractTags(content string) []string {
 	fields := strings.Fields(content)
 
 	tags := []string{}
