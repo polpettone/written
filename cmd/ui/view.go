@@ -4,10 +4,8 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/models"
-	"github.com/polpettone/written/cmd/service"
 	"github.com/polpettone/written/pkg"
 	"github.com/rivo/tview"
-	"github.com/spf13/viper"
 )
 
 const SPACE = " "
@@ -33,18 +31,25 @@ func MainView(documents []*models.Document) {
 		SetBorders(false).
 		SetSelectable(true, false)
 
+	documentView := DocumentView{
+		Documents:    []*models.Document{},
+		Table:        documentTable,
+		ContentView:  documentContentView,
+		MetaInfoView: documentMetaInfoView,
+	}
+
 	queryInputField.
 		SetInputCapture(
 			func(event *tcell.EventKey) *tcell.EventKey {
 				config.Log.DebugLog.Printf("Key: %s", event.Key())
 				query := queryInputField.GetText()
 				config.Log.InfoLog.Printf("Filter Documents by: s%", query)
-				updateDocuments(documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
+				documentView.update(queryInputField.GetText())
 				return event
 			},
 		)
 
-	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
+	documentView.update(queryInputField.GetText())
 
 	documentGrid := tview.NewGrid().
 		SetRows(10, 0).
@@ -92,7 +97,7 @@ func MainView(documents []*models.Document) {
 
 				if event.Key() == tcell.KeyCtrlR {
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
-					updateDocuments(documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
+					documentView.update(queryInputField.GetText())
 				}
 
 				if event.Key() == tcell.KeyCtrlO {
@@ -109,19 +114,4 @@ func MainView(documents []*models.Document) {
 		Run(); err != nil {
 		panic(err)
 	}
-}
-func updateDocuments(
-	documentTable *tview.Table,
-	documentContentView *tview.TextView,
-	documentMetaInfoView *tview.TextView,
-	query string,
-) {
-	WrittenDirectory := viper.GetString(config.WrittenDirectory)
-	documents, err := service.Read(WrittenDirectory)
-	if err != nil {
-		config.Log.ErrorLog.Printf("%s", err)
-	}
-	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView, query)
-
-	documentTable.Select(0, 0)
 }

@@ -5,19 +5,29 @@ import (
 	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/cmd/service"
 	"github.com/rivo/tview"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"sort"
 	"strings"
 )
 
-func fillDocumentTable(
-	documents []*models.Document,
-	documentTable *tview.Table,
-	documentContentView *tview.TextView,
-	documentMetaInfoView *tview.TextView,
-	query string) {
+type DocumentView struct {
+	Documents    []*models.Document
+	Table        *tview.Table
+	ContentView  *tview.TextView
+	MetaInfoView *tview.TextView
+}
 
-	documentTable.Clear()
+
+func (view DocumentView) update(query string) {
+	WrittenDirectory := viper.GetString(config.WrittenDirectory)
+	documents, err := service.Read(WrittenDirectory)
+	if err != nil {
+		config.Log.ErrorLog.Printf("%s", err)
+	}
+	view.Documents = documents
+
+	view.Table.Clear()
 
 	filteredDocuments := service.FilterDocuments(documents, query)
 
@@ -26,11 +36,11 @@ func fillDocumentTable(
 	})
 
 	for row, document := range filteredDocuments {
-		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
-		documentTable.SetCell(row, 1, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
+		view.Table.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
+		view.Table.SetCell(row, 1, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
 	}
 
-	documentTable.SetSelectionChangedFunc(
+	view.Table.SetSelectionChangedFunc(
 		func(row int, column int) {
 			if len(filteredDocuments) > row {
 				document := filteredDocuments[row]
@@ -40,13 +50,14 @@ func fillDocumentTable(
 				if err != nil {
 					config.Log.ErrorLog.Printf("{}", err)
 				}
-				documentContentView.SetText(string(content))
-				documentMetaInfoView.SetText(documentMetaView(*document))
+				view.ContentView.SetText(string(content))
+				view.MetaInfoView.SetText(documentMetaView(*document))
 			} else {
-				documentContentView.Clear()
-				documentMetaInfoView.Clear()
+				view.ContentView.Clear()
+				view.MetaInfoView.Clear()
 			}
 		},
 	)
-
+	view.Table.Select(0, 0)
 }
+
