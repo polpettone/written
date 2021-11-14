@@ -19,7 +19,20 @@ type DocumentView struct {
 }
 
 
-func (view DocumentView) update(query string) {
+func NewDocumentView() *DocumentView {
+	documentTable := tview.NewTable().
+		SetBorders(false).
+		SetSelectable(true, false)
+	documentView := &DocumentView{
+		Documents:    []*models.Document{},
+		Table:        documentTable,
+		ContentView:  tview.NewTextView(),
+		MetaInfoView: tview.NewTextView(),
+	}
+	return documentView
+}
+
+func (view *DocumentView) update(query string) {
 	WrittenDirectory := viper.GetString(config.WrittenDirectory)
 	documents, err := service.Read(WrittenDirectory)
 	if err != nil {

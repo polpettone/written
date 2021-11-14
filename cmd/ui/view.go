@@ -3,7 +3,6 @@ package ui
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/polpettone/written/cmd/config"
-	"github.com/polpettone/written/cmd/models"
 	"github.com/polpettone/written/pkg"
 	"github.com/rivo/tview"
 )
@@ -11,7 +10,7 @@ import (
 const SPACE = " "
 const commandOverview = "CTRL+Q: Query, CTRL+F: Filter, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open, CTRL+R: Refresh"
 
-func MainView(documents []*models.Document) {
+func MainView() {
 	app := tview.NewApplication()
 
 	queryInputField := tview.NewInputField().
@@ -22,21 +21,10 @@ func MainView(documents []*models.Document) {
 		SetLabel("Filter: ").
 		SetFieldBackgroundColor(tcell.Color240)
 
-	documentContentView := tview.NewTextView()
-	documentMetaInfoView := tview.NewTextView()
 	commandOverviewView := tview.NewTextView()
 	commandOverviewView.SetText(commandOverview)
 
-	documentTable := tview.NewTable().
-		SetBorders(false).
-		SetSelectable(true, false)
-
-	documentView := DocumentView{
-		Documents:    []*models.Document{},
-		Table:        documentTable,
-		ContentView:  documentContentView,
-		MetaInfoView: documentMetaInfoView,
-	}
+	documentView := NewDocumentView()
 
 	queryInputField.
 		SetInputCapture(
@@ -54,8 +42,8 @@ func MainView(documents []*models.Document) {
 	documentGrid := tview.NewGrid().
 		SetRows(10, 0).
 		SetBorders(true).
-		AddItem(documentMetaInfoView, 0, 0, 1, 2, 10, 0, false).
-		AddItem(documentContentView, 1, 0, 1, 2, 0, 0, false)
+		AddItem(documentView.MetaInfoView, 0, 0, 1, 2, 10, 0, false).
+		AddItem(documentView.ContentView, 1, 0, 1, 2, 0, 0, false)
 
 	grid := tview.NewGrid().
 		SetRows(1, 0, 1, 1).
@@ -65,13 +53,13 @@ func MainView(documents []*models.Document) {
 	grid.
 		AddItem(queryInputField, 0, 0, 1, 1, 0, 100, false).
 		AddItem(filterInputField, 0, 1, 1, 1, 0, 100, false).
-		AddItem(documentTable, 1, 0, 1, 1, 0, 100, false).
+		AddItem(documentView.Table, 1, 0, 1, 1, 0, 100, false).
 		AddItem(documentGrid, 1, 1, 1, 1, 0, 100, false).
 		AddItem(commandOverviewView, 2, 0, 1, 2, 0, 100, false)
 
 	if err := app.
 		SetRoot(grid, true).
-		SetFocus(documentTable).
+		SetFocus(documentView.Table).
 		SetInputCapture(
 			func(event *tcell.EventKey) *tcell.EventKey {
 
@@ -82,7 +70,7 @@ func MainView(documents []*models.Document) {
 
 				if event.Key() == tcell.KeyCtrlD {
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
-					app.SetFocus(documentTable)
+					app.SetFocus(documentView.Table)
 				}
 
 				if event.Key() == tcell.KeyCtrlQ {
@@ -101,11 +89,18 @@ func MainView(documents []*models.Document) {
 				}
 
 				if event.Key() == tcell.KeyCtrlO {
-					selectedRow, _ := documentTable.GetSelection()
-					document := documents[selectedRow]
-					err := pkg.OpenFileInTerminator(document.Path)
-					if err != nil {
-						config.Log.ErrorLog.Printf("%s", err)
+
+					selectedRow, _ := documentView.Table.GetSelection()
+
+					config.Log.DebugLog.Printf("selected Row %d", selectedRow)
+					config.Log.DebugLog.Printf("len documents %d", len(documentView.Documents))
+
+					if selectedRow < len(documentView.Documents) {
+						document := documentView.Documents[selectedRow]
+						err := pkg.OpenFileInTerminator(document.Path)
+						if err != nil {
+							config.Log.ErrorLog.Printf("%s", err)
+						}
 					}
 				}
 
