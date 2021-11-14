@@ -32,6 +32,7 @@ func Read(path string) ([]*models.Document, error) {
 				Path: path,
 				Info: info,
 				Tags: tags,
+				Content: string(content),
 			}
 			documents = append(documents, document)
 			return nil

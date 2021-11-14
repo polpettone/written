@@ -6,11 +6,19 @@ import (
 )
 
 type Document struct {
-	Path string `json:"Path"`
-	Info os.FileInfo `json:"-"`
-	Tags []string `json:"Tags"`
+	Path string
+	Info os.FileInfo
+	Tags []string
+	Content string
 }
 
 func (document Document) String() string {
-	return fmt.Sprintf("%s %s", document.Info.Name(), document.Tags)
+	name := ""
+	if document.Info != nil {
+		name = document.Info.Name()
+	} else {
+		name = document.Path
+	}
+
+	return fmt.Sprintf("%s %s", name, document.Tags)
 }

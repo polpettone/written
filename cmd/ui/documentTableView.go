@@ -14,22 +14,25 @@ func fillDocumentTable(
 	documents []*models.Document,
 	documentTable *tview.Table,
 	documentContentView *tview.TextView,
-	documentMetaInfoView *tview.TextView) {
+	documentMetaInfoView *tview.TextView,
+	query string) {
 
 	documentTable.Clear()
 
-	sort.Slice(documents, func(i, j int) bool {
-		return documents[i].Info.ModTime().After(documents[j].Info.ModTime())
+	filteredDocuments := service.FilterDocuments(documents, query)
+
+	sort.Slice(filteredDocuments, func(i, j int) bool {
+		return filteredDocuments[i].Info.ModTime().After(filteredDocuments[j].Info.ModTime())
 	})
 
-	for row, document := range documents {
+	for row, document := range filteredDocuments {
 		documentTable.SetCell(row, 0, tview.NewTableCell(document.Info.Name()))
 		documentTable.SetCell(row, 1, tview.NewTableCell(strings.Join(document.Tags, SPACE)))
 	}
 
 	documentTable.SetSelectionChangedFunc(
 		func(row int, column int) {
-			document := documents[row]
+			document := filteredDocuments[row]
 			content, err := ioutil.ReadFile(document.Path)
 			tags := service.ExtractTags(string(content))
 			document.Tags = tags

@@ -20,18 +20,6 @@ func MainView(documents []*models.Document) {
 		SetLabel("Query: ").
 		SetFieldBackgroundColor(tcell.Color240)
 
-	queryInputField.
-		SetInputCapture(
-			func(event *tcell.EventKey) *tcell.EventKey {
-				if event.Key() == tcell.KeyEnter {
-					config.Log.DebugLog.Printf("Key: %s", event.Key())
-					query := queryInputField.GetText()
-					config.Log.InfoLog.Printf("Filter Documents by: s%", query)
-				}
-				return event
-			},
-		)
-
 	documentContentView := tview.NewTextView()
 	documentMetaInfoView := tview.NewTextView()
 	commandOverviewView := tview.NewTextView()
@@ -41,7 +29,20 @@ func MainView(documents []*models.Document) {
 		SetBorders(false).
 		SetSelectable(true, false)
 
-	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView)
+	queryInputField.
+		SetInputCapture(
+			func(event *tcell.EventKey) *tcell.EventKey {
+				if event.Key() == tcell.KeyEnter {
+					config.Log.DebugLog.Printf("Key: %s", event.Key())
+					query := queryInputField.GetText()
+					config.Log.InfoLog.Printf("Filter Documents by: s%", query)
+					updateDocuments(documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
+				}
+				return event
+			},
+		)
+
+	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
 
 	documentGrid := tview.NewGrid().
 		SetRows(10, 0, 2).
@@ -83,7 +84,7 @@ func MainView(documents []*models.Document) {
 
 				if event.Key() == tcell.KeyCtrlR {
 					config.Log.DebugLog.Printf("Key: %s", event.Key())
-					updateDocuments(documentTable, documentContentView, documentMetaInfoView)
+					updateDocuments(documentTable, documentContentView, documentMetaInfoView, queryInputField.GetText())
 				}
 
 				if event.Key() == tcell.KeyCtrlO {
@@ -105,11 +106,12 @@ func updateDocuments(
 	documentTable *tview.Table,
 	documentContentView *tview.TextView,
 	documentMetaInfoView *tview.TextView,
+	query string,
 ) {
 	WrittenDirectory := viper.GetString(config.WrittenDirectory)
 	documents, err := service.Read(WrittenDirectory)
 	if err != nil {
 		config.Log.ErrorLog.Printf("%s", err)
 	}
-	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView)
+	fillDocumentTable(documents, documentTable, documentContentView, documentMetaInfoView, query)
 }
