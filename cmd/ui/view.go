@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/polpettone/written/cmd/config"
 	"github.com/polpettone/written/cmd/service"
@@ -121,7 +122,9 @@ func FlexView() {
 	writtenDirectory := viper.GetString(config.WrittenDirectory)
 	metaField := tview.NewTextView()
 	contentField := tview.NewTextView()
-	tree := TreeView(contentField, metaField, writtenDirectory)
+	historyField := tview.NewTextView()
+
+	tree := TreeView(contentField, metaField, historyField, writtenDirectory)
 
 	app := tview.NewApplication()
 	flex := tview.NewFlex().
@@ -129,13 +132,13 @@ func FlexView() {
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(metaField, 0, 1, false).
 			AddItem(contentField, 0, 3, false).
-			AddItem(metaField, 5, 1, false), 0, 2, false)
+			AddItem(historyField, 5, 1, false), 0, 2, false)
 	if err := app.SetRoot(flex, true).SetFocus(tree).Run(); err != nil {
 		panic(err)
 	}
 }
 
-func TreeView(contentField, metaField *tview.TextView, rootDir string) *tview.TreeView {
+func TreeView(contentField, metaField, historyField *tview.TextView, rootDir string) *tview.TreeView {
 	root := tview.NewTreeNode(rootDir).
 		SetColor(tcell.ColorRed)
 	tree := tview.NewTreeView().
@@ -184,12 +187,16 @@ func TreeView(contentField, metaField *tview.TextView, rootDir string) *tview.Tr
 				document, _ := service.ReadDocument(path)
 				contentField.SetText(document.Content)
 				metaField.SetText(documentMetaView(*document))
+				history, err := pkg.GetHistory(rootDir, document.Info.Name())
+				if err != nil {
+					panic(err)
+				}
+				historyField.SetText(fmt.Sprintf("%s", history))
 			}
 		} else {
 			// Collapse if visible, expand if collapsed.
 			node.SetExpanded(!node.IsExpanded())
 		}
 	})
-
 	return tree
 }
