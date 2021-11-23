@@ -22,7 +22,7 @@ func ShowCmd() *cobra.Command {
 
 
 func handleShowCommand() (string, error) {
-	ui.MainView()
+	ui.FlexView()
 	return "", nil
 }
 
