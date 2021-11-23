@@ -13,19 +13,19 @@ const commandOverview = "CTRL+Q: Query, CTRL+F: Filter, CTRL+D: Document Table, 
 func FlexView() {
 
 	writtenDirectory := viper.GetString(config.WrittenDirectory)
-	metaField := tview.NewTextView()
-	contentField := tview.NewTextView()
-	historyField := tview.NewTextView()
+	documentMetaField := tview.NewTextView()
+	documentField := tview.NewTextView()
+	documentHistoryField := tview.NewTextView()
 
-	tree := TreeView(contentField, metaField, historyField, writtenDirectory)
+	tree := TreeView(documentField, documentMetaField, documentHistoryField, writtenDirectory)
 
 	app := tview.NewApplication()
 	flex := tview.NewFlex().
 		AddItem(tree, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(metaField, 0, 1, false).
-			AddItem(contentField, 0, 3, false).
-			AddItem(historyField, 5, 1, false), 0, 2, false)
+			AddItem(documentMetaField, 0, 1, false).
+			AddItem(documentField, 0, 3, false).
+			AddItem(documentHistoryField, 5, 1, false), 0, 2, false)
 
 
 	if err := app.SetRoot(flex, true).
@@ -39,13 +39,16 @@ func FlexView() {
 					app.Stop()
 				}
 
+				if event.Key() == tcell.KeyCtrlT {
+					app.SetFocus(tree)
+				}
+
+				if event.Key() == tcell.KeyCtrlH {
+					app.SetFocus(documentHistoryField)
+				}
+
 				if event.Key() == tcell.KeyCtrlD {
-				}
-
-				if event.Key() == tcell.KeyCtrlQ {
-				}
-
-				if event.Key() == tcell.KeyCtrlF {
+					app.SetFocus(documentField)
 				}
 
 				if event.Key() == tcell.KeyCtrlR {
