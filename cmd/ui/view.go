@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/polpettone/written/cmd/config"
+	"github.com/polpettone/written/pkg"
 	"github.com/rivo/tview"
 	"github.com/spf13/viper"
 )
@@ -55,6 +56,13 @@ func FlexView() {
 				}
 
 				if event.Key() == tcell.KeyCtrlO {
+					node := tree.GetCurrentNode()
+					if node.GetLevel() != 0 {
+						err := pkg.OpenFileInTerminator(node.GetReference().(string))
+						if err != nil {
+							config.Log.ErrorLog.Printf("", err)
+						}
+					}
 				}
 				return event
 			}).
