@@ -22,7 +22,7 @@ func GetHistory(repoPath, filePath string) (string, error) {
 	history := ""
 
 	err = cIter.ForEach(func(c *object.Commit) error {
-		history += fmt.Sprintf("%s\n", c.Author.When)
+		history += fmt.Sprintf("%s %s\n", c.Author.When, c.Message)
 		return nil
 	})
 
