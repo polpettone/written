@@ -11,7 +11,10 @@ import (
 const SPACE = " "
 const commandOverview = "CTRL+Q: Query, CTRL+F: Filter, CTRL+D: Document Table, CTRL+C: Quit, CTRL+O: Open, CTRL+R: Refresh"
 
+
 func FlexView() {
+
+	wide := true
 
 	writtenDirectory := viper.GetString(config.WrittenDirectory)
 	documentMetaField := tview.NewTextView()
@@ -21,14 +24,15 @@ func FlexView() {
 	tree := TreeView(documentField, documentMetaField, documentHistoryField, writtenDirectory)
 
 	app := tview.NewApplication()
+
+	rightPanelFlex := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(documentMetaField, 0, 1, false).
+		AddItem(documentHistoryField, 0, 1, false)
+
 	flex := tview.NewFlex().
 		AddItem(tree, 0, 2, false).
 		AddItem(documentField, 0, 5, false).
-		AddItem(
-			tview.NewFlex().SetDirection(tview.FlexRow).
-				AddItem(documentMetaField, 0, 1, false).
-				AddItem(documentHistoryField, 0, 1, false),
-			0, 2, false)
+		AddItem(rightPanelFlex, 0, 2, false)
 
 	if err := app.SetRoot(flex, true).
 		SetFocus(tree).
@@ -53,7 +57,16 @@ func FlexView() {
 					app.SetFocus(documentField)
 				}
 
-				if event.Key() == tcell.KeyCtrlR {
+				if event.Key() == tcell.KeyCtrlW {
+					if !wide  {
+						flex.AddItem(rightPanelFlex, 0, 2, false)
+						wide = true
+					}
+				}
+
+				if event.Key() == tcell.KeyCtrlN {
+					flex.RemoveItem(rightPanelFlex)
+					wide = false
 				}
 
 				if event.Key() == tcell.KeyCtrlO {
