@@ -61,7 +61,7 @@ func TreeView(contentField, metaField, historyField *tview.TextView, rootDir str
 				document, _ := service.ReadDocument(path)
 				contentField.SetText(document.Content)
 				metaField.SetText(documentMetaView(*document))
-				history, err := pkg.GetHistory(rootDir, document.Info.Name())
+				history, err := pkg.GetHistory(rootDir, path)
 				if err == nil {
 					historyField.SetText(fmt.Sprintf("%s", history))
 				} else {
