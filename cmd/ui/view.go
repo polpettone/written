@@ -22,12 +22,13 @@ func FlexView() {
 
 	app := tview.NewApplication()
 	flex := tview.NewFlex().
-		AddItem(tree, 0, 1, false).
-		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(documentMetaField, 0, 1, false).
-			AddItem(documentField, 0, 3, false).
-			AddItem(documentHistoryField, 5, 1, false), 0, 2, false)
-
+		AddItem(tree, 0, 2, false).
+		AddItem(documentField, 0, 5, false).
+		AddItem(
+			tview.NewFlex().SetDirection(tview.FlexRow).
+				AddItem(documentMetaField, 0, 1, false).
+				AddItem(documentHistoryField, 0, 1, false),
+			0, 2, false)
 
 	if err := app.SetRoot(flex, true).
 		SetFocus(tree).
@@ -67,7 +68,6 @@ func FlexView() {
 				return event
 			}).
 		Run(); err != nil {
-
 
 		panic(err)
 	}
