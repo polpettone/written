@@ -10,6 +10,10 @@ import (
 func GetHistory(repoPath, filePath string) (string, error) {
 	repo, err := git.PlainOpen(repoPath)
 
+	if err != nil {
+		return "", err
+	}
+
 	ref, err := repo.Head()
 	cIter, err := repo.Log(&git.LogOptions{
 		From: ref.Hash(),

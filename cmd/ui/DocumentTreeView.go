@@ -62,10 +62,11 @@ func TreeView(contentField, metaField, historyField *tview.TextView, rootDir str
 				contentField.SetText(document.Content)
 				metaField.SetText(documentMetaView(*document))
 				history, err := pkg.GetHistory(rootDir, document.Info.Name())
-				if err != nil {
-					panic(err)
+				if err == nil {
+					historyField.SetText(fmt.Sprintf("%s", history))
+				} else {
+					historyField.SetText("no .git in root dir. no history available")
 				}
-				historyField.SetText(fmt.Sprintf("%s", history))
 			}
 		} else {
 			// Collapse if visible, expand if collapsed.
